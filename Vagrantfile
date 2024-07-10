@@ -7,16 +7,22 @@
 # you're doing.
 Vagrant.configure("2") do |config|
 
-	config.vm.define "Ubuntu2204Srvr4", primary: true do |srvr4|
+	config.vm.define "admin", primary: true do |srvr4|
 		srvr4.vm.box = "bento/ubuntu-22.04"
-		srvr4.vm.hostname = "Ubuntu2204srvr4" # Nom de l'hôte pour la machine
+		srvr4.vm.hostname = "admin.oteck.fr" # Nom de l'hôte pour la machine
 		srvr4.vm.network "public_network", ip: "192.168.1.50", bridge: "eth1"
 		srvr4.vm.provider "virtualbox" do |vb|
-			vb.name = "Ubuntu2204srvr4-vm"
+			vb.name = "admin.oteck.fr"
 			vb.memory = "1024" # RAM en Mo
 			vb.cpus = 1 # Nombre de CPU
 		end
 		srvr4.vm.provision "shell", inline: <<-SHELL
+		 sudo apt-get update
+    
+		# Installer Ansible
+		sudo apt-get install -y software-properties-common
+		sudo add-apt-repository --yes --update ppa:ansible/ansible
+		sudo apt-get install -y ansible
 		cat > /etc/netplan/50-netcfg.yaml <<EOF
 network:
   version: 2
@@ -31,12 +37,12 @@ EOF
 			sudo netplan apply
 		SHELL
 	end
-	config.vm.define "Ubuntu2204Srvr5" do |srvr5|
+	config.vm.define "web1" do |srvr5|
 		srvr5.vm.box = "bento/ubuntu-22.04"
-		srvr5.vm.hostname = "Ubuntu2204srvr5" # Nom de l'hôte pour la machine
+		srvr5.vm.hostname = "web1.oteck.fr" # Nom de l'hôte pour la machine
 		srvr5.vm.network "public_network", ip: "192.168.1.51", bridge: "eth1"
 		srvr5.vm.provider "virtualbox" do |vb|
-			vb.name = "Ubuntu2204srvr5-vm"
+			vb.name = "web1.oteck.fr"
 			vb.memory = "1024" # RAM en Mo
 			vb.cpus = 1 # Nombre de CPU
 		end
@@ -56,16 +62,16 @@ EOF
 		SHELL
 	end
 	#
-	config.vm.define "Ubuntu2204Srvr6" do |srvr6|
-		srvr6.vm.box = "bento/ubuntu-22.04"
-		srvr6.vm.hostname = "Ubuntu2204srvr6" # Nom de l'hôte pour la machine
-		srvr6.vm.network "public_network", ip: "192.168.1.52", bridge: "eth1"
-		srvr6.vm.provider "virtualbox" do |vb|
-			vb.name = "Ubuntu2204srvr6-vm"
+	config.vm.define "web2" do |srvr61|
+		srvr61.vm.box = "bento/ubuntu-22.04"
+		srvr61.vm.hostname = "web2.oteck.fr" # Nom de l'hôte pour la machine
+		srvr61.vm.network "public_network", ip: "192.168.1.52", bridge: "eth1"
+		srvr61.vm.provider "virtualbox" do |vb|
+			vb.name = "web2.oteck.fr"
 			vb.memory = "1024" # RAM en Mo
 			vb.cpus = 1 # Nombre de CPU
 		end
-		srvr6.vm.provision "shell", inline: <<-SHELL
+		srvr61.vm.provision "shell", inline: <<-SHELL
 		cat > /etc/netplan/50-netcfg.yaml <<EOF
 network:
   version: 2
@@ -80,12 +86,36 @@ EOF
 			sudo netplan apply
 		SHELL
 	end
-	config.vm.define "Ubuntu2204Srvr7" do |srvr7|
+	config.vm.define "front" do |srvr6|
+		srvr6.vm.box = "bento/ubuntu-22.04"
+		srvr6.vm.hostname = "front.oteck.fr" # Nom de l'hôte pour la machine
+		srvr6.vm.network "public_network", ip: "192.168.1.53", bridge: "eth1"
+		srvr6.vm.provider "virtualbox" do |vb|
+			vb.name = "front.oteck.fr"
+			vb.memory = "1024" # RAM en Mo
+			vb.cpus = 1 # Nombre de CPU
+		end
+		srvr6.vm.provision "shell", inline: <<-SHELL
+		cat > /etc/netplan/50-netcfg.yaml <<EOF
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    eth0:
+      dhcp4: true
+    eth1:
+      addresses:
+        - 192.168.1.53/24
+EOF
+			sudo netplan apply
+		SHELL
+	end
+	config.vm.define "bdd" do |srvr7|
 		srvr7.vm.box = "bento/ubuntu-22.04"
-		srvr7.vm.hostname = "Ubuntu2204srvr7" # Nom de l'hôte pour la machine
-		srvr7.vm.network "public_network", ip: "192.168.1.53", bridge: "eth1"
+		srvr7.vm.hostname = "bdd.oteck.fr" # Nom de l'hôte pour la machine
+		srvr7.vm.network "public_network", ip: "192.168.1.54", bridge: "eth1"
 		srvr7.vm.provider "virtualbox" do |vb|
-			vb.name = "Ubuntu2204srvr7-vm"
+			vb.name = "bdd.oteck.fr"
 			vb.memory = "1024" # RAM en Mo
 			vb.cpus = 1 # Nombre de CPU
 		end
@@ -99,7 +129,79 @@ network:
       dhcp4: true
     eth1:
       addresses:
-        - 192.168.1.53/24
+        - 192.168.1.54/24
+EOF
+			sudo netplan apply
+		SHELL
+	end
+	config.vm.define "ns1" do |srvr71|
+		srvr71.vm.box = "bento/ubuntu-22.04"
+		srvr71.vm.hostname = "ns1.oteck.fr" # Nom de l'hôte pour la machine
+		srvr71.vm.network "public_network", ip: "192.168.1.80", bridge: "eth1"
+		srvr71.vm.provider "virtualbox" do |vb|
+			vb.name = "ns1.oteck.fr"
+			vb.memory = "1024" # RAM en Mo
+			vb.cpus = 1 # Nombre de CPU
+		end
+		srvr71.vm.provision "shell", inline: <<-SHELL
+		cat > /etc/netplan/50-netcfg.yaml <<EOF
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    eth0:
+      dhcp4: true
+    eth1:
+      addresses:
+        - 192.168.1.80/24
+EOF
+			sudo netplan apply
+		SHELL
+	end
+	config.vm.define "ns2" do |srvr8|
+		srvr8.vm.box = "bento/ubuntu-22.04"
+		srvr8.vm.hostname = "ns2.oteck.fr" # Nom de l'hôte pour la machine
+		srvr8.vm.network "public_network", ip: "192.168.1.81", bridge: "eth1"
+		srvr8.vm.provider "virtualbox" do |vb|
+			vb.name = "ns2.oteck.fr"
+			vb.memory = "1024" # RAM en Mo
+			vb.cpus = 1 # Nombre de CPU
+		end
+		srvr8.vm.provision "shell", inline: <<-SHELL
+		cat > /etc/netplan/50-netcfg.yaml <<EOF
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    eth0:
+      dhcp4: true
+    eth1:
+      addresses:
+        - 192.168.1.81/24
+EOF
+			sudo netplan apply
+		SHELL
+	end
+	config.vm.define "monitoring" do |srvr9|
+		srvr9.vm.box = "bento/ubuntu-22.04"
+		srvr9.vm.hostname = "monitoring.oteck.fr" # Nom de l'hôte pour la machine
+		srvr9.vm.network "public_network", ip: "192.168.1.55", bridge: "eth1"
+		srvr9.vm.provider "virtualbox" do |vb|
+			vb.name = "monitoring.oteck.fr"
+			vb.memory = "1024" # RAM en Mo
+			vb.cpus = 1 # Nombre de CPU
+		end
+		srvr9.vm.provision "shell", inline: <<-SHELL
+		cat > /etc/netplan/50-netcfg.yaml <<EOF
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    eth0:
+      dhcp4: true
+    eth1:
+      addresses:
+        - 192.168.1.55/24
 EOF
 			sudo netplan apply
 		SHELL
